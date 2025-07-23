@@ -1,0 +1,16 @@
+Based on the HTML structure and the Schema.org data found in the main document, you can find the following information using these approaches:
+
+Title: The main title is present in an <h1> tag with the class Text Text__title1 and the attribute data-testid="bookTitle". It's also available in the <meta property="og:title"> and <meta name="twitter:title"> tags, and within the Schema.org script tag under the "name" property.
+Authors: The authors are listed within an <h3> tag with class Text Text__title3 Text__regular. Individual author names are within <a> tags with class ContributorLink, and the author names themselves are in <span> tags with class ContributorLink__name and data-testid="name". This information is also available in the Schema.org script tag under the "author" property, which is an array of objects with @type "Person" and "name".
+Rating: The aggregate rating is mentioned in the Schema.org script tag under "aggregateRating" with the properties "ratingValue" and "ratingCount". There is also an <h2> tag with class Text Text__title2 containing "Ratings & Reviews", suggesting the presence of this information on the page, likely within elements near this heading.
+Description: A description is available in the <meta name="description">, <meta property="og:description">, and <meta name="twitter:description"> tags.
+Genres: Genre information is not explicitly present in the provided headings, meta tags, or Schema.org data. You would likely need to inspect the page's content more broadly to find this, possibly within div or span tags.
+#pages: The number of pages is available in the Schema.org script tag under the "numberOfPages" property.
+Published data: The Schema.org data includes an "isbn", which could potentially be used to find publication information, but the exact published date is not directly provided in the observed data. You would likely need to look for specific text elements on the page.
+Original title: The original title is not explicitly mentioned in the provided data. You would need to inspect the page content for this information, potentially within div or span tags.
+Edition details: An <h4> tag with class Text Text__title4 contains "This edition", indicating that edition details are present nearby on the page.
+Other editions links: An <h4> tag with class Text Text__title4 contains "More editions", suggesting that links to other editions are present on the page.
+More information tags: An <h4> tag with class Text Text__title4 contains "More information", indicating that more details are available nearby.
+Book statistics tags: While not explicitly labeled "book statistics", information like "ratings" and "#pages" can be considered statistics. You'd look for elements containing numerical values related to the book.
+People read or reading: An <h3> tag with class Text Text__title3 mentions "Friends & Following", and the presence of reviews suggests information about readers is available. You'd look for lists or counts of users.
+Suggested books comments: An <h3> tag with class Text Text__title3 mentions "Readers also enjoyed" and an <h2> tag with class Text Text__h2 mentions "Join the discussion", indicating sections for suggested books and comments. You'd look for list items or comment blocks.
