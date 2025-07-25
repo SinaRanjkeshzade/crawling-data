@@ -10,7 +10,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
-
+from youtube_transcript_api.proxies import WebshareProxyConfig
+from tqdm import tqdm
 logging.basicConfig(level=logging.INFO)
 
 # Try to use undetected-chromedriver for stealth, fallback to normal Chrome
@@ -24,6 +25,9 @@ USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+]
+
+PROXIES = [
 ]
 
 def human_like_scroll(driver, total_scrolls=5):
@@ -69,6 +73,15 @@ class SeleniumYouTubeCrawler:
         )
         self.cookies = cookies or []
         self._load_cookies()
+        # --- Proxy for YouTubeTranscriptApi ---
+        # proxy_addr = random.choice(PROXIES)
+        # proxy_url = f"http://{proxy_addr}"
+        # proxy_config = WebshareProxyConfig(http_url=proxy_url, https_url=proxy_url)
+        proxy_config=WebshareProxyConfig(
+            proxy_username="",
+            proxy_password="",
+        )
+        self.youtube_api = YouTubeTranscriptApi(proxy_config=proxy_config)
 
     def _load_cookies(self):
         """Load cookies into the browser for session management."""
@@ -84,20 +97,23 @@ class SeleniumYouTubeCrawler:
         """Optional: Log in to YouTube for authenticated crawling."""
         logging.info("Login not implemented for security. Use cookies if needed.")
 
+    def extract_youtube_id(self, url):
+        import re
+        pattern = r'(?:v=|youtu\.be\/|\/embed\/|\/v\/|\/watch\?v=)([A-Za-z0-9_-]{11})'
+        match = re.search(pattern, url)
+        return match.group(1) if match else None
+
     def get_transcript(self, video_url, languages=['en']):
         """Fetch transcript for a given YouTube video URL. Returns transcript as text or None if not available."""
-        import re
-        match = re.search(r"v=([\w-]+)", video_url)
-        if not match:
-            return None
-        video_id = match.group(1)
+        video_id = self.extract_youtube_id(video_url)
+        
         try:
-            transcript = YouTubeTranscriptApi.fetch(video_id, languages=languages)
-            return " ".join([seg['text'] for seg in transcript])
+            transcript = self.youtube_api.fetch(video_id=video_id, languages=languages)
+            return " ".join([seg.text for seg in transcript])
         except (TranscriptsDisabled, NoTranscriptFound):
             return None
         except Exception as e:
-            logging.warning(f"Transcript fetch error for {video_url}: {e}")
+            logging.warning(f"Transcript fetch error for {video_url}: {e}, video id: {video_id}")
             return None
 
     def crawl_search(self, query, max_pages=1):
@@ -119,7 +135,7 @@ class SeleniumYouTubeCrawler:
                     logging.error(f"Timeout waiting for video elements: {e}")
                     continue
                 videos = self.driver.find_elements(By.ID, 'video-title')
-                for video in videos:
+                for video in tqdm(videos[:10], desc="analyzing videos ..."):
                     try:
                         if video.is_displayed() and video.is_enabled():
                             title = video.get_attribute('title')

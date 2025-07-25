@@ -19,7 +19,7 @@ def print_results(all_results, queries):
             print(f"Title: {video['title']}\nURL: {video['url']}\nTranscript: {video['transcript'][:200] if video['transcript'] else 'No transcript'}\n---")
 
 def main():
-    queries = ["python tutorials", "machine learning", "data science"]
+    queries = ["python tutorials"] # , "machine learning", "data science"]
     max_pages = 3
     try:
         # Parallel crawling for multiple queries
